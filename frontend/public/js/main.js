@@ -3,7 +3,7 @@ function showMessage(elementId, message) {
     element.innerHTML = message;
 }
 
-const hello_with_basic_auth_url = 'http://localhost:1991/hello_with_basic_auth';
+const hello_with_basic_auth_url = 'http://localhost:1991/basic_auth/hello';
 const basic_auth_button_id = 'basic_authentication_button';
 const basic_auth_message_id = 'basic_authentication_message';
 
