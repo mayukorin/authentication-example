@@ -29,7 +29,12 @@ func main() {
 		},
 	}))
 
-	router.Use(middleware.BasicAuthMiddleware())
-	router.GET("/hello_with_basic_auth", handlers.GetHello)
+	baseAuthGroupRouter := router.Group("/basic_auth")
+	baseAuthGroupRouter.Use(middleware.BasicAuthMiddleware())
+	baseAuthGroupRouter.GET("/hello", handlers.GetHello)
+
+	tokenAuthGroupRouter := router.Group("/token_auth")
+	tokenAuthGroupRouter.POST("/jwt_token", handlers.GenerateJwtToken)
+
 	router.Run(":1991")
 }
