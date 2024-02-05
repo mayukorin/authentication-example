@@ -10,7 +10,6 @@ import (
 
 func main() {
 	router := gin.Default()
-	// allows all origins
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: []string{
 			"http://localhost:3000",
@@ -33,8 +32,12 @@ func main() {
 	baseAuthGroupRouter.Use(middleware.BasicAuthMiddleware())
 	baseAuthGroupRouter.GET("/hello", handlers.GetHello)
 
+	tokenGenerateGroupRouter := router.Group("/token")
+	tokenGenerateGroupRouter.POST("/jwt_token", handlers.GenerateJwtToken)
+
 	tokenAuthGroupRouter := router.Group("/token_auth")
-	tokenAuthGroupRouter.POST("/jwt_token", handlers.GenerateJwtToken)
+	tokenAuthGroupRouter.Use(middleware.TokenAuthWithJWTMiddleware())
+	tokenAuthGroupRouter.GET("/hello", handlers.GetHello)
 
 	router.Run(":1991")
 }

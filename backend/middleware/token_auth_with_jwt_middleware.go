@@ -1,47 +1,58 @@
-package handlers
+package middleware
 
 import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
-	"time"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func GenerateJwtToken(c *gin.Context) {
-	username := c.PostForm("username")
-	password := c.PostForm("password")
-	if !(username == "mayukorin" && password == "password") {
-		c.AbortWithError(http.StatusUnauthorized, errors.New("not correct username and password"))
-		return
-	}
+func TokenAuthWithJWTMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token, err := extractTokenFromAuthorizationHeader(c.GetHeader("Authorization"))
+		if err != nil {
+			fmt.Println(err.Error())
+			c.Status(http.StatusInternalServerError)
+			c.Abort()
+		}
 
-	nowTime := time.Now()
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
-		"sub": username,
-		"iat": nowTime,
-		"eat": nowTime.AddDate(0, 0, 1),
-	})
+		parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+				return nil, err
+			}
+			_, publicKey, err := readJwtTokenAuthKeys("jwt_token_auth_secret.pem", "jwt_token_auth_public.pem")
+			if err != nil {
+				return nil, err
+			}
+			return publicKey, nil
+		})
+		if err != nil {
+			fmt.Println(err.Error())
+			c.Status(http.StatusInternalServerError)
+			c.Abort()
+		}
 
-	secretKey, _, err := readJwtTokenAuthKeys("jwt_token_auth_secret.pem", "jwt_token_auth_public.pem")
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-	SignedToken, err := token.SignedString(secretKey)
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
+		claims, ok := parsedToken.Claims.(jwt.MapClaims)
+		if !ok {
+			fmt.Println("cannot assert jwt.MapClaims")
+			c.Status(http.StatusInternalServerError)
+			c.Abort()
+		}
+		if claims["sub"] != "mayukorin" {
+			fmt.Println("invalid username")
+			c.Status(http.StatusUnauthorized)
+			c.Abort()
+		}
 
-	c.JSON(http.StatusOK, gin.H{
-		"jwt_token": SignedToken,
-	})
+		c.Next()
+	}
 }
 
 func readJwtTokenAuthKeys(secretKeyFilePath string, publicKeyFilePath string) (*rsa.PrivateKey, *rsa.PublicKey, error) {
@@ -87,4 +98,12 @@ func readJwtTokenAuthKeys(secretKeyFilePath string, publicKeyFilePath string) (*
 	}
 
 	return secretKey, publicKey, nil
+}
+
+func extractTokenFromAuthorizationHeader(authorizationHeader string) (string, error) {
+	if authorizationHeader == "" || !strings.HasPrefix(authorizationHeader, "Bearer ") {
+		return "", errors.New("invalid authorizationHeader")
+	}
+	token := strings.TrimPrefix(authorizationHeader, "Bearer ")
+	return token, nil
 }
