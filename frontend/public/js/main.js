@@ -4,7 +4,7 @@ function showMessage(elementId, message) {
 }
 
 const hello_with_basic_auth_url = 'http://localhost:1991/basic_auth/hello';
-const token_auth_jwt_token_generate_url = 'http://localhost:1991/token_auth/jwt_token';
+const token_auth_jwt_token_generate_url = 'http://localhost:1991/token/jwt_token';
 const basic_auth_button_id = 'basic_authentication_button';
 const basic_auth_message_id = 'basic_authentication_message';
 const token_auth_jwt_generate_message_id = 'token_authentication_jwt_generate_message';
