@@ -13,3 +13,6 @@
 1. Basic Authentication ボタンをクリックする
 2. 上に表示されるダイアログに，username: mayukorin, password: password を入力し，OK を押す．
 3. Basic Authentication が完了し，Basic Authentication ボタンの横に「hello world!!」が表示される．
+
+# Token Authentication with JWT
+1. お名前に mayukorin, パスワードに password を入れて「JWT Token を取得する」ボタンを押す．成功すると，「jwt Token を取得しました」が表示される．
