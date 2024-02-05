@@ -6,6 +6,15 @@
  </head>
  <body>
    <input type="button" id="basic_authentication_button" value="Basic Authentication"><span id="basic_authentication_message"></span>
+   <div>
+      <form id="token_authentication_jwt_generate_form">
+        <label for="username">お名前</label><br>
+        <input type="text" name="username"><br>
+        <label for="password">パスワード</label><br>
+        <input type="password" name="password"><br>
+        <input type="button" id="token_authentication_jwt_generate_button" value="JWT token を取得する"><span id="token_authentication_jwt_generate_message"></span>
+      </form>
+   </div>
  </body>
  <script src="js/main.js"></script>
 </html>
