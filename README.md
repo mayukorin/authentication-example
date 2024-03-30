@@ -16,3 +16,5 @@
 
 # Token Authentication with JWT
 1. お名前に mayukorin, パスワードに password を入れて「JWT Token を取得する」ボタンを押す．成功すると，「jwt Token を取得しました」が表示される．
+2. 「JWT token でアクセスする」ボタンを押す．
+3. 正しい JWT token でアクセスできていると，ボタンの横に「hello world!!」が表示される．
